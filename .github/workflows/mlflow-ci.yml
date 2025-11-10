@@ -1,0 +1,54 @@
+name: MlFlow CI - Retrain Model
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'MLProject/**'
+      - '.github/workflows/mlflow-ci.yml'
+  workflow_dispatch: {} 
+
+jobs:
+  train-model:
+   runs-on: ubuntu-latest
+
+   steps: 
+    - name: Checkout repository
+      uses: action/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install MlFlow
+      run: |
+        pip install mlflow
+
+    - name: Run MLFlow Project
+      working-directory: ./
+      run: |
+        mlflow run MLProject -e main
+
+    - name: Upload Training Artifacts
+      uses: action/setup-pythob@v4
+      with:
+        name: model-artfacts
+        path: |
+          artifacts
+          mlruns
+        if-no-files-found: ignore
+    
+    - name: Build & Push Docker Image
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      run: |
+        mlflow models build-docker \
+            -m MLProject/mlruns/0/*/artifacts/rf_model \
+            -n $DOCKERHUB_USERNAME/covertype-mlflow:latest
+
+        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        docker push $DOCKERHUB_USERNAME/covertype-mlflow:latest
+
+        

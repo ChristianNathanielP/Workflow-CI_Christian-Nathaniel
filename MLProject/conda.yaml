@@ -1,0 +1,14 @@
+name: covertype-env 
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - mlflow==2.19.0
+    - scikit-learn
+    - xgboost
+    - pandas
+    - numpy
+    - matplotlib
