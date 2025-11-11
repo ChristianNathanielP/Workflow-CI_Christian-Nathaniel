@@ -37,7 +37,7 @@ jobs:
     - name: Run MLFlow Project
       working-directory: ./
       run: |
-        mlflow run MLProject -e main --no-use-conda
+        mlflow run MLProject -e main --env-manager=local
 
     - name: Determine Best Run ID
       shell: bash
