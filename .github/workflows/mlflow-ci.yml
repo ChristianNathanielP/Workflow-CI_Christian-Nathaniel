@@ -37,7 +37,7 @@ jobs:
     - name: Run MLFlow Project
       working-directory: ./
       run: |
-        mlflow run MLProject -e main
+        mlflow run MLProject -e main --no-conda
 
     - name: Determine Best Run ID
       shell: bash
