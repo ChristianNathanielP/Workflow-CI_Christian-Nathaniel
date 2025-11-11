@@ -42,20 +42,14 @@ jobs:
     - name: Determine Best Run ID
       shell: bash
       run: |
-        BEST_RUN_FILE="artifacts/best_run_id.txt"
+        BEST_RUN_FILE="MLProject/artifacts/best_run_id.txt"
 
         if [ -f "$BEST_RUN_FILE" ]; then
           echo "Found best_run_id file at $BEST_RUN_FILE"
           RUN_ID=$(cat "$BEST_RUN_FILE")
         else
-          echo "best_run_id file not found, using latest run from mlruns/0"
-          if [ -d "mlruns/0" ]; then
-            # Ambil direktori run terbaru dari experiment 0
-            RUN_ID=$(ls -td mlruns/0/*/ | head -1 | xargs -n1 basename)
-          else
-            echo "No mlruns/0 directory found. Cannot determine RUN_ID."
-            RUN_ID=""
-          fi
+          echo "best_run_id file not found. Cannot determine RUN_ID."
+          RUN_ID=""
         fi
 
         echo "Selected RUN_ID=$RUN_ID"
