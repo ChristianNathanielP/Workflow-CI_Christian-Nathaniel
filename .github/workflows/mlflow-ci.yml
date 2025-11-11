@@ -80,9 +80,8 @@ jobs:
       if: success() && env.RUN_ID != ''
       run: |
         echo "Building Docker image from RUN_ID=${RUN_ID}"
-
         mlflow models build-docker \
-          -m "runs:/${RUN_ID}/rf_model" \
+          -m "runs:/${RUN_ID}/model" \
           -n "${DOCKERHUB_USERNAME}/covertype-mlflow:${RUN_ID}"
 
     - name: Tag Docker Image as Latest

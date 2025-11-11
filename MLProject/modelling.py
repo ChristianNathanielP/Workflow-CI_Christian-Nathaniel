@@ -51,8 +51,10 @@ if __name__ == '__main__':
     # mlflow.set_tracking_uri("http://127.0.0.1:5000/")
     # mlflow.set_experiment("CoverType_Experiment")
 
+    os.makedirs("artifacts", exist_ok=True)
+
     # Train Random Forest Model
-    with mlflow.start_run(run_name="RandomForest_Baseline", nested=True):
+    with mlflow.start_run(run_name="RandomForest_Baseline", nested=True) as rf_run:
         mlflow.sklearn.autolog()
         
         rf_model = RandomForestClassifier(
@@ -85,6 +87,7 @@ if __name__ == '__main__':
         # Calculate additional metrics
         rf_acc = accuracy_score(y_test, y_pred_rf)
         rf_f1 = f1_score(y_test, y_pred_rf, average="weighted")
+        rf_run_id = rf_run.info.run_id
         
         # Log additional metrics manually
         mlflow.log_metrics({
@@ -96,7 +99,7 @@ if __name__ == '__main__':
         print("F1 Score Random Forest Model: ", rf_f1)
 
     # Train XGBoost Model 
-    with mlflow.start_run(run_name="XGBoost_Baseline", nested=True):
+    with mlflow.start_run(run_name="XGBoost_Baseline", nested=True) as xgb_run:
         mlflow.xgboost.autolog()
         
         y_train_xgb = y_train - 1
@@ -136,7 +139,8 @@ if __name__ == '__main__':
         # Calculate additional metrics 
         xgb_acc = accuracy_score(y_test_xgb, y_pred_xgb)
         xgb_f1 = f1_score(y_test_xgb, y_pred_xgb, average="weighted")
-        
+        xgb_run_id = xgb_run.info.run_id
+
         # Log additional metrics
         mlflow.log_metrics({
             "test_accuracy": xgb_acc,
@@ -146,5 +150,17 @@ if __name__ == '__main__':
         print("Accuracy XGBoost Model: ", xgb_acc)
         print("F1 Score XGBoost Model: ", xgb_f1)
 
+    # Model Terbaik
+    if xgb_f1 >= rf_f1:
+        best_run_id = xgb_run_id
+        best_model_name = "XGBoost"
+    else:
+        best_run_id = rf_run_id
+        best_model_name = "RandomForest"
+
+    with open("artifacts/best_run_id.txt", "w") as f:
+        f.write(best_run_id)
+
+    print(f"\nBest model: {best_model_name} (run_id={best_run_id})")
 
 print("\nTraining Model Run Successfully 🤓.")
