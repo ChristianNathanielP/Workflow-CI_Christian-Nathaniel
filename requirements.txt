@@ -1,0 +1,7 @@
+numpy
+pandas
+scikit-learn
+xgboost
+mlflow==2.19.0
+dagshub
+matplotlib
